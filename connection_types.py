@@ -56,8 +56,9 @@ class Client:
         if set_nickname in message:
             nickname = splited_message[1]
 
-            logger.info(f'{self.id} changed nickname to {nickname}')
-            self.id = nickname
+            if self._set_nickname(nickname):
+                logger.info(f'{self.id} changed nickname to {nickname}')
+                self.id = nickname
 
             self.send(f'Your current nickname : {self.id}')
 
@@ -68,11 +69,11 @@ class Client:
 
             if _color in font_colors:
                 self.color = _color
+                self._set_color(self.color)
                 logger.info(f'{self.id} changed color to {self.color}')
             else:
                 self.send(f'{_color} color not found')
 
-            self._set_color(self.color)
             self.send(f'Your current font color : {self.color}')
 
             return self.color
@@ -104,11 +105,33 @@ class Client:
 
         return False
 
+    def _set_nickname(self, username : str) -> Boolean:
+        users = self._parse_users()
+
+        if self.id not in users:
+            self.send(f'You have to stay logged in to change nickname')
+            return False
+
+        if username in users:
+            self.send(f'Username {username} already exists')
+            return False
+
+        users[username] = users[self.id]
+        users.pop(self.id)
+
+        with open(USERS, 'w',encoding='utf-8') as write_stream:
+            json.dump(users, write_stream, indent=4, sort_keys=True)
+
+        return True
+
     def _set_color(self, color : str):
         users = self._parse_users()
 
-        users[self.id]['COLOR'] = color
-        self._edit_users(self.id, color=color)
+        try:
+            users[self.id]['COLOR'] = color
+            self._edit_users(self.id, color=color)
+        except:
+            pass
 
     def _reg_user(self, username: str, password: str) -> Boolean:
         users = self._parse_users()
