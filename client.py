@@ -19,9 +19,9 @@ from utils.vars import font_colors
 sock = socket.socket()
 
 # dev
-#sock.connect(('localhost', 9090))
+sock.connect(('localhost', 9090))
 # prod
-sock.connect(('185.127.224.67', 9002))
+# sock.connect(('185.127.224.67', 9002))
 
 console = Console()
 

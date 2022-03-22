@@ -1,7 +1,7 @@
 import socket
 import threading
 
-from host.connection_types import Client
+from connection_types import Client
 import utils.logger as logger
 
 HOST = 'localhost'
