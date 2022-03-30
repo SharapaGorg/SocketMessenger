@@ -91,6 +91,7 @@ class Client:
 
             if self._reg_user(username, password):
                 self._log_user(username, password)
+
             return self.id
 
         if message == current_color:
@@ -176,7 +177,7 @@ class Client:
 
         with open(USERS, 'w', encoding='utf-8') as write_stream:
             if not users.get(username):
-                users[username] = dict()
+                users[username] = dict()       
 
             if password:
                 users[username]['PASSWORD'] = password
@@ -191,4 +192,4 @@ class Client:
 
     def _admin_msg(self, message):
         """ Shape Admin Message with prefix and encoding """
-        return (f'yellow {self.PREFIX} {message}').encode('utf-8')
+        return (f'yellow {self.PREFIX} {message}').encode('utf-8')    
