@@ -18,8 +18,12 @@ sock.listen(5)
 logger.info('Host running : ', HOST, PORT)
 
 
-def callback(data, id: int):
-    message = f'[{id}] ' + data.decode('utf-8')
+def callback(data, id: int, room : int = 0):
+    if not isinstance(data, str):
+        message = f'[{id}] ' + data.decode('utf-8')
+    else:
+        message = f'[{id}] {data}'
+
 
     color = 'white'
 
@@ -37,7 +41,7 @@ def callback(data, id: int):
 
             continue
 
-        if data:
+        if data and client.current_room == room:
             client.conn.send((color + ' ' + message).encode('utf-8'))
 
 

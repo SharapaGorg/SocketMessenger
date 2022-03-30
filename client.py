@@ -19,11 +19,12 @@ from utils.vars import font_colors
 sock = socket.socket()
 
 # dev
-#sock.connect(('localhost', 9090))
+sock.connect(('localhost', 9090))
 # prod
-sock.connect(('185.127.224.67', 9002))
+#sock.connect(('185.127.224.67', 9002))
 
 console = Console()
+
 
 def receive_data(conn):
     try:
@@ -32,20 +33,20 @@ def receive_data(conn):
             data = _data.decode('utf-8').split()
             color, author, message = data[0], data[1], ' '.join(data[2:])
 
-            if author == '[HOST]':
+            if author == 'HOST':
                 content = Panel(Text(message, justify='center'))
                 console.print(content)
             else:
                 content = ANSI(font_colors.get(color) + author + ' ' + message + font_colors.get('white'))
                 print_formatted_text(content)
-            
+
     except:
         # logger.warning('Client aborted')
         pass
 
 
 receive_thread_ = threading.Thread(target=receive_data, args=[
-                                   sock], name='Socket-Data-Receiver 1', daemon=True)
+    sock], name='Socket-Data-Receiver 1', daemon=True)
 
 
 async def receiver():
@@ -85,5 +86,6 @@ async def main():
 
         sock.close()
         sys.exit()
+
 
 asyncio.run(main())

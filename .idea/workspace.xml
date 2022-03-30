@@ -3,9 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="da0ec674-a7ed-4265-974a-25390268a9e1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/connection_types.py" beforeDir="false" afterPath="$PROJECT_DIR$/connection_types.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/users.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/host.py" beforeDir="false" afterPath="$PROJECT_DIR$/host.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +44,7 @@
       <updated>1648311083974</updated>
       <workItem from="1648311085164" duration="589000" />
       <workItem from="1648647790531" duration="25000" />
-      <workItem from="1648655426168" duration="854000" />
+      <workItem from="1648655426168" duration="3331000" />
     </task>
     <servers />
   </component>

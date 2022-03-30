@@ -1,4 +1,3 @@
-from ast import Str
 from typing import Any, Dict, List
 from xmlrpc.client import Boolean
 import utils.logger as logger
@@ -9,15 +8,41 @@ import json
 USERS = join('users', 'users.json')
 
 
+def _parse_users() -> Dict:
+    with open(USERS, 'r', encoding='utf-8') as read_stream:
+        data = read_stream.read()
+
+        return json.loads(data)
+
+
+def _edit_users(username: str, password: str = None, color: str = None, users: list = None):
+    if not users:
+        users = _parse_users()
+
+    with open(USERS, 'w', encoding='utf-8') as write_stream:
+        if not users.get(username):
+            users[username] = dict()
+
+        if password:
+            users[username]['PASSWORD'] = password
+
+        if color:
+            users[username]['COLOR'] = color
+
+        json.dump(users, write_stream, indent=4, sort_keys=True)
+
+
 class Client:
-    PREFIX = '[HOST]'
+    PREFIX = 'HOST'
 
     def __init__(self, id: str, conn, color: str):
         self.id = id
         self.conn = conn
         self.color = color
+        self.current_room = 0
 
     def loop(self, callback, remove_member):
+        self.callback = callback
         while 'LISTENING':
             try:
                 data = self.conn.recv(1024)
@@ -31,7 +56,7 @@ class Client:
                 if self.command_handler(decoded_data):
                     continue
 
-                callback(data, self.id)
+                callback(data, self.id, self.current_room)
 
             except Exception as e:
                 if e.args[0] != 10054:
@@ -50,8 +75,23 @@ class Client:
         current_color = 'COLOR'
         login_user = 'LOG'
         reg_user = 'REG'
+        change_room = 'SET_ROOM'
+        current_room = 'ROOM'
 
         splited_message = message.split()
+
+        if change_room in message:
+            room = splited_message[1]
+
+            self.current_room = room
+            self.callback(f'{self.id} joined the room: {self.current_room}', self.PREFIX, self.current_room)
+
+            return self.current_room
+
+        if message == current_room:
+            self.send(f'Your current room : {self.current_room}')
+
+            return True
 
         if set_nickname in message:
             nickname = splited_message[1]
@@ -106,8 +146,8 @@ class Client:
 
         return False
 
-    def _set_nickname(self, username : str) -> Boolean:
-        users = self._parse_users()
+    def _set_nickname(self, username: str) -> Boolean:
+        users = _parse_users()
 
         if self.id not in users:
             self.send(f'You have to stay logged in to change nickname')
@@ -120,22 +160,22 @@ class Client:
         users[username] = users[self.id]
         users.pop(self.id)
 
-        with open(USERS, 'w',encoding='utf-8') as write_stream:
+        with open(USERS, 'w', encoding='utf-8') as write_stream:
             json.dump(users, write_stream, indent=4, sort_keys=True)
 
         return True
 
-    def _set_color(self, color : str):
-        users = self._parse_users()
+    def _set_color(self, color: str):
+        users = _parse_users()
 
         try:
             users[self.id]['COLOR'] = color
-            self._edit_users(self.id, color=color)
+            _edit_users(self.id, color=color)
         except:
             pass
 
     def _reg_user(self, username: str, password: str) -> Boolean:
-        users = self._parse_users()
+        users = _parse_users()
 
         if username in users:
             self.send(
@@ -143,13 +183,13 @@ class Client:
 
             return False
 
-        self._edit_users(username, password, 'white', users)
+        _edit_users(username, password, 'white', users)
 
         self.send(f'Account {username} successfully created')
         return self.id
 
     def _log_user(self, username: str, password: str):
-        users = self._parse_users()
+        users = _parse_users()
 
         if username not in users:
             self.send(f'Account {username} does not exist')
@@ -165,31 +205,9 @@ class Client:
         self.send(f'Successfully logged in as {self.id}')
         return self.id
 
-    def _parse_users(self) -> Dict:
-        with open(USERS, 'r', encoding='utf-8') as read_stream:
-            data = read_stream.read()
-
-            return json.loads(data)
-
-    def _edit_users(self, username : str, password : str = None, color : str = None, users : list = None):
-        if not users:
-            users = self._parse_users()
-
-        with open(USERS, 'w', encoding='utf-8') as write_stream:
-            if not users.get(username):
-                users[username] = dict()       
-
-            if password:
-                users[username]['PASSWORD'] = password
-
-            if color:
-                users[username]['COLOR'] = color
-
-            json.dump(users, write_stream, indent=4, sort_keys=True)
-
     def send(self, message):
         self.conn.send(self._admin_msg(message))
 
     def _admin_msg(self, message):
         """ Shape Admin Message with prefix and encoding """
-        return (f'yellow {self.PREFIX} {message}').encode('utf-8')    
+        return (f'yellow {self.PREFIX} {message}').encode('utf-8')
