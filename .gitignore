@@ -6,3 +6,4 @@ app.log
 env/
 test.py
 .idea/
+autocomplete/

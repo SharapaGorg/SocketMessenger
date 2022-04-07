@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from sys import argv
+
+from asyncore import write
+import json
+from textwrap import indent
 
 
 try:
     import asyncio
     import socket
-    import sys
+    import sys, os
     import threading
     import utils.logger as logger
     from prompt_toolkit.shortcuts import PromptSession
@@ -32,6 +35,9 @@ try:
 
     console = Console()
 
+    USER = 'autocomplete'
+    USER_PATH = os.path.join(USER, 'secret.json')
+    last_message = str()
 
     def receive_data(conn):
         try:
@@ -43,6 +49,19 @@ try:
                 if author == 'HOST':
                     content = Panel(Text(message, justify='center'))
                     console.print(content)
+
+                    if 'logged' in message:
+                        # saving data about account
+                        if not os.path.exists(USER):
+                            os.mkdir(USER)
+
+                        command, username, password = last_message.split()
+
+                        with open(USER_PATH, 'w', encoding='utf-8') as write_stream:
+                            data = json.dumps({username : password}, indent=4, sort_keys=True)
+
+                            write_stream.write(data)
+
                 else:
                     content = ANSI(font_colors.get(color) + author + ' ' + message + font_colors.get('white'))
                     print_formatted_text(content)
@@ -63,6 +82,7 @@ try:
 
 
     async def typing():
+
         session = PromptSession("[You]: ")
 
         while True:
@@ -70,6 +90,8 @@ try:
                 message = await session.prompt_async()
 
                 sock.send(message.encode('utf-8'))
+                global last_message
+                last_message = message
 
                 if message == 'exit':
                     break
@@ -79,6 +101,17 @@ try:
 
 
     async def main():
+        # if os.path.exists(USER_PATH):
+        #     # autologin
+        #     with open(USER_PATH, 'r', encoding='utf-8') as read_stream:
+        #         data = json.loads(read_stream.read())
+
+        #         command = 'LOG'
+        #         username = list(data.keys())[0]
+        #         password = data.get(username)
+
+        #         sock.send(' '.join([command, username, password]).encode('utf-8'))
+
         with patch_stdout():
             background_receiver = asyncio.create_task(receiver())
 
