@@ -1,12 +1,20 @@
+from asyncore import write
 from typing import Any, Dict, List
 from xmlrpc.client import Boolean
 import utils.logger as logger
 from utils.vars import font_colors
 from os.path import join
+from os.path import exists
+from os import mkdir
 import json
 
 USERS = join('users', 'users.json')
 
+if not exists('users'):
+    mkdir('users')
+
+    with open(USERS, 'w') as write_stream:
+        write_stream.write('{}')
 
 def _parse_users() -> Dict:
     with open(USERS, 'r', encoding='utf-8') as read_stream:

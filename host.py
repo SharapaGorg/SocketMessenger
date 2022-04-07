@@ -1,11 +1,28 @@
+"""
+
+Using:
+
+py host.py --dev | --prod
+
+"""
+
 import socket
 import threading
 
 from connection_types import Client
 import utils.logger as logger
+from sys import argv, exit
 
-HOST = 'localhost'
-PORT = 9090
+if len(argv) < 2:
+    logger.warning('Ты недостоин')
+    exit()
+
+
+if argv[1] == '--dev':
+    HOST, PORT = 'localhost', 9090
+if argv[1] == '--prod':
+    HOST, PORT = '0.0.0.0', 9002
+
 
 CLIENTS = list()
 

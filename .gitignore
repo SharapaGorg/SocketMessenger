@@ -1,5 +1,6 @@
 utils/__pycache__
 utils/app.log
+users/
 __pycache__/
 app.log
 env/

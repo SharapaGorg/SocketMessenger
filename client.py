@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from sys import argv
+
+
 try:
     import asyncio
     import socket
@@ -18,10 +21,14 @@ try:
 
     sock = socket.socket()
 
-    # dev
-    #sock.connect(('localhost', 9090))
-    # prod
-    sock.connect(('185.127.224.67', 9002))
+    if len(sys.argv) < 2:
+        logger.warning('Ты недостоин')
+        sys.exit()
+
+    if sys.argv[1] == '--dev':
+        sock.connect(('localhost', 9090))
+    if sys.argv[1] == '--prod':    
+        sock.connect(('185.127.224.67', 9002))
 
     console = Console()
 
